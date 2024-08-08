@@ -1,0 +1,117 @@
+#include <stdio.h>
+
+#define MAX_TERMS 100
+
+struct poly {
+    int coeff;
+    int expo;
+} p1[MAX_TERMS], p2[MAX_TERMS], p3[MAX_TERMS];
+
+int readPoly(struct poly []);
+int addPoly(struct poly[], struct poly[], int, int, struct poly[]);
+void displayPoly(struct poly[], int);
+void sortPoly(struct poly[], int);
+
+int main() {
+    int t1, t2, t3;
+
+    t1 = readPoly(p1);   
+    printf("\nFirst polynomial: ");
+    displayPoly(p1, t1);
+
+    t2 = readPoly(p2);
+    printf("\nSecond polynomial: ");
+    displayPoly(p2, t2);
+
+    t3 = addPoly(p1, p2, t1, t2, p3);
+    sortPoly(p3, t3);
+
+    printf("\nResultant polynomial: ");
+    displayPoly(p3, t3);
+
+    return 0;
+}
+
+int readPoly(struct poly p[]) { 
+    int t1, i;
+    printf("\nEnter the total number of terms in the polynomial: ");
+    scanf("%d", &t1);
+    if (t1 > MAX_TERMS) {
+        printf("Error: Number of terms exceeds the maximum allowed (%d).\n", MAX_TERMS);
+        return 0;
+    }
+    printf("\nEnter the COEFFICIENT and EXPONENT in DESCENDING ORDER\n");
+    for (i = 0; i < t1; i++) {
+        printf("Enter the coefficient(%d): ", i + 1);
+        scanf("%d", &p[i].coeff);
+        printf("Enter the exponent(%d): ", i + 1);
+        scanf("%d", &p[i].expo);
+    }
+    return t1;
+}
+
+void displayPoly(struct poly p[], int term) {
+    int k;
+    if (term == 0) {
+        printf("0");
+        return;
+    }
+    for (k = 0; k < term; k++) {
+        if (p[k].coeff != 0) {
+            // Print '+' before positive coefficients, except for the first term
+            if (k > 0 && p[k].coeff > 0) {
+                printf(" + ");
+            }
+            // Print the coefficient and exponent
+            printf("%d(x^%d)", p[k].coeff, p[k].expo);
+        }
+    }
+    printf("\n");
+}
+
+int addPoly(struct poly p1[], struct poly p2[], int t1, int t2, struct poly p3[]) {
+    int i = 0, j = 0, k = 0;
+    while (i < t1 && j < t2) {
+        if (p1[i].expo == p2[j].expo) {
+            // Add coefficients of terms with the same exponent
+            int sum = p1[i].coeff + p2[j].coeff;
+            if (sum != 0) {  // Only add non-zero results
+                p3[k].coeff = sum;
+                p3[k].expo = p1[i].expo;
+                k++;
+            }
+            i++;
+            j++;
+        } else if (p1[i].expo > p2[j].expo) {
+            p3[k] = p1[i];  // Copy term from p1
+            i++;
+            k++;
+        } else {
+            p3[k] = p2[j];  // Copy term from p2
+            j++;
+            k++;
+        }
+    }
+    while (i < t1) {
+        p3[k++] = p1[i++];  // Copy remaining terms from p1
+    }
+    while (j < t2) {
+        p3[k++] = p2[j++];  // Copy remaining terms from p2
+    }
+    return k;
+}
+
+void sortPoly(struct poly p[], int term) {
+    int i, j;
+    struct poly temp;
+    for (i = 0; i < term - 1; i++) {
+        for (j = i + 1; j < term; j++) {
+            if (p[i].expo < p[j].expo) {
+                // Swap the terms
+                temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+}
